@@ -137,78 +137,7 @@ function calculateFinalAmount(subtotal: number, discount: number, tax: number): 
     return subtotal - discount + tax;
 }
 
-function processPayment(payment: Payment, amount: number): void {
-    if (payment.method === "cash") {
-        console.log("Payment Method: Cash");
-        console.log("Received Amount: ₹" + payment.receivedAmount);
-        console.log("Change: ₹" + (payment.receivedAmount - amount));
-    } else if (payment.method === "card") {
-        console.log("Payment Method: Card");
-        console.log("Card ending: " + payment.last4Digits);
-    } else {
-        console.log("Payment Method: UPI");
-        console.log("Transaction ID: " + payment.transactionId);
-    }
-}
 
-function updateOrderStatus(status: OrderStatus): void {
-    orderStatus = status;
-    console.log("Order Status: " + orderStatus);
-}
 
-function generateBill(customer: Customer, customerType: CustomerType, payment: Payment): void {
-    const subtotal = calculateSubtotal();
-    const discount = calculateDiscount(subtotal, customerType);
-    const amountAfterDiscount = subtotal - discount;
-    const tax = calculateTax(amountAfterDiscount);
-    const finalAmount = calculateFinalAmount(subtotal, discount, tax);
+]
 
-    console.log("");
-    console.log("==============================");
-    console.log("       FOOD ORDER BILL");
-    console.log("==============================");
-    console.log("Customer: " + customer.name);
-    console.log("Address: " + customer.address);
-    console.log("");
-    console.log("Items:");
-
-    for (let item of cart) {
-        console.log(
-            item.food.name + " x " + item.quantity +
-            " = ₹" + calculateItemTotal(item)
-        );
-    }
-
-    console.log("");
-    console.log("Subtotal: ₹" + subtotal);
-    console.log("Discount: ₹" + discount);
-    console.log("GST 5%: ₹" + tax);
-    console.log("Final Amount: ₹" + finalAmount);
-    console.log("");
-
-    processPayment(payment, finalAmount);
-
-    console.log("");
-    console.log("Order Status: " + orderStatus);
-    console.log("==============================");
-}
-
-addToCart(foodItems[0], 2);
-addToCart(foodItems[2], 1, "No onion");
-addToCart(foodItems[4], 2);
-
-updateQuantity(3, 2);
-
-console.log("Subtotal: ₹" + calculateSubtotal());
-
-updateOrderStatus("confirmed");
-
-const payment: Payment = {
-    method: "upi",
-    transactionId: "UPI123456"
-};
-
-generateBill(member, "member", payment);
-
-updateOrderStatus("preparing");
-updateOrderStatus("delivered");
