@@ -61,6 +61,7 @@ interface CartItem {
 let cart: CartItem[] = [];
 
 type OrderStatus = "pending" | "confirmed" | "preparing" | "delivered" | "cancelled";
+
 let orderStatus: OrderStatus = "pending";
 
 interface CashPayment {
@@ -86,11 +87,12 @@ function addToCart(food: FoodItem, quantity: number, specialInstruction?: string
         quantity: quantity,
         specialInstruction: specialInstruction
     };
+
     cart.push(item);
 }
 
 function removeFromCart(foodId: number): void {
-    cart = cart.filter(function (item) {
+    cart = cart.filter(function(item) {
         return item.food.id !== foodId;
     });
 }
@@ -109,9 +111,11 @@ function calculateItemTotal(item: CartItem): number {
 
 function calculateSubtotal(): number {
     let subtotal = 0;
+
     for (let item of cart) {
         subtotal = subtotal + calculateItemTotal(item);
     }
+
     return subtotal;
 }
 
@@ -137,7 +141,76 @@ function calculateFinalAmount(subtotal: number, discount: number, tax: number): 
     return subtotal - discount + tax;
 }
 
+function processPayment(payment: Payment, amount: number): void {
+    if (payment.method === "cash") {
+        console.log("Payment: Cash");
+        console.log("Received: ₹" + payment.receivedAmount);
+        console.log("Change: ₹" + (payment.receivedAmount - amount));
+    } else if (payment.method === "card") {
+        console.log("Payment: Card");
+        console.log("Card ending: " + payment.last4Digits);
+    } else {
+        console.log("Payment: UPI");
+        console.log("Transaction ID: " + payment.transactionId);
+    }
+}
 
+function updateOrderStatus(status: OrderStatus): void {
+    orderStatus = status;
+    console.log("Order Status: " + orderStatus);
+}
 
-]
+function generateBill(customer: Customer, customerType: CustomerType, payment: Payment): void {
+    const subtotal = calculateSubtotal();
+    const discount = calculateDiscount(subtotal, customerType);
+    const amountAfterDiscount = subtotal - discount;
+    const tax = calculateTax(amountAfterDiscount);
+    const finalAmount = calculateFinalAmount(subtotal, discount, tax);
 
+    console.log("==============================");
+    console.log("       FOOD ORDER BILL");
+    console.log("==============================");
+    console.log("Customer: " + customer.name);
+    console.log("Address: " + customer.address);
+    console.log("");
+
+    for (let item of cart) {
+        console.log(
+            item.food.name + " x " + item.quantity +
+            " = ₹" + calculateItemTotal(item)
+        );
+    }
+
+    console.log("");
+    console.log("Subtotal: ₹" + subtotal);
+    console.log("Discount: ₹" + discount);
+    console.log("GST 5%: ₹" + tax);
+    console.log("Final Amount: ₹" + finalAmount);
+    console.log("");
+
+    processPayment(payment, finalAmount);
+
+    console.log("");
+    console.log("Order Status: " + orderStatus);
+    console.log("==============================");
+}
+
+addToCart(foodItems[0], 2);
+addToCart(foodItems[2], 1, "No onion");
+addToCart(foodItems[4], 2);
+
+updateQuantity(3, 2);
+
+console.log("Subtotal: ₹" + calculateSubtotal());
+
+updateOrderStatus("confirmed");
+
+const payment: Payment = {
+    method: "upi",
+    transactionId: "UPI123456"
+};
+
+generateBill(member, "member", payment);
+
+updateOrderStatus("preparing");
+updateOrderStatus("delivered");
